@@ -1,0 +1,27 @@
+<%= erb :"shared/header", :layout => false %>
+
+    <h2>Add member to team: <%=@team.name%></h2>
+<div class="color-box">
+    <p><%=@team.about%></p>
+
+    <%= erb :"shared/list_errors", :layout => false %>
+
+    <form method=post action="/team/<%=@team.id%>/member/create">
+    <% if @candidates.size > 0 %>
+        <div>Select from the list below:<br>
+            <select name="selected_member" multiple size=5>
+              <% @candidates.each do |candidate| %>
+              <option value="<%=candidate.name%>"><%=candidate.name%></option>
+              <% end %>
+            </select>
+        </div>
+        <p>Or,</p> 
+    <% end %>
+    <div>Add new:<br>
+
+          <p>Name:<input name="name" size="30" value="<%=params[:name]%>"></p>
+    </div>
+    <p><input type=submit value="Add member"></p>
+    </form>
+</div>
+<%= erb :"shared/footer", :layout => false %>

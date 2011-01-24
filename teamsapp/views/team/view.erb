@@ -1,0 +1,19 @@
+<%= erb :"shared/header", :layout => false %>
+
+<h2><%=@team.name%></h2>
+
+<div class="color-box">
+  <p>About: <%=@team.about%></p>
+  <p>Members:</p>
+  <% if !@team.team_members.empty? %>
+    <select name="member" multiple size=5>
+        <% @team.team_members.each do |member| %>
+          <option><%=member.name%></option>
+        <% end %>
+    </select>
+  <% end %>
+  <p></p><a href="/team/<%=@team.id%>/member/new">Add a new member</a></p>
+
+</div>
+
+<%= erb :"shared/footer", :layout => false %>

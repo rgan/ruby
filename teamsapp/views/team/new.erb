@@ -1,0 +1,14 @@
+<%= erb :"shared/header", :layout => false %>
+  
+    <h1>Create a Team</h1>
+    <div class="color-box">
+        <%= erb :"shared/list_errors", :layout => false %>
+
+        <form method=post action="/team/create">
+          <p>Name:<input name="name" size="30" value="<%=params[:name]%>"></p>
+          <p>About:<textarea name="about" rows="3"><%=params[:about]%></textarea></p>
+          <p><input type=submit value="Create Team"></p>
+        </form>
+    </div>
+
+<%= erb :"shared/footer", :layout => false %>

@@ -1,0 +1,7 @@
+<%if @errors %>
+    <ul>
+        <% @errors.each do |msg|%>
+            <li><%=h msg%></li>
+        <% end %>
+    </ul>
+<% end %>

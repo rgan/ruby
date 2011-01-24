@@ -1,0 +1,39 @@
+<%= erb :"shared/header", :layout => false %>
+
+      <script>
+        $(function() {
+            $( "#tabs" ).tabs();
+        });
+     </script>
+    <h1>Teams</h1>
+    <div id="main">
+    <div id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Teams</a></li>
+            <li class="ui-state-default ui-corner-top"><a href="#tabs-2">Facebook</a></li>
+        </ul>
+        <div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+          <div><a href="/team/new">Create new team</a></div>
+
+          <div>
+            <% @teams.each do |team| %>
+                <a href="/team/<%=team.id%>"><%=h team.name %></a><br>
+            <% end %>
+            </div>
+        </div>
+        <div id="tabs-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+          <div >
+            <% if @user %>
+                <p>Recent posts from: <%=@user.first_name%> <%=@user.last_name %>.</p>
+                <% @posts.each do |post| %>
+                    <p><%=post.updated_time%>:<%=post.message%></p>
+                <% end %>
+            <% else %>
+                <a href="/facebook_login">Click here to allow access to facebook</a>
+            <% end %>
+           </div>
+        </div>
+    </div>
+    </div>
+
+<%= erb :"shared/footer", :layout => false %>
