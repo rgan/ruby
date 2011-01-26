@@ -1,0 +1,13 @@
+module OAuth::Signature::HMAC
+  class Base < OAuth::Signature::Base
+
+  private
+    def digest
+      self.class.digest_class Object.module_eval("::Digest::#{self.class.digest_klass}")
+      # Hack from: https://github.com/mojodna/oauth/issues/#issue/21
+      #Digest::HMAC.digest(signature_base_string, secret, self.class.digest_class)
+      digest  = OpenSSL::Digest::Digest.new('sha1')
+      OpenSSL::HMAC.digest(digest, secret, signature_base_string)
+    end
+  end
+end
