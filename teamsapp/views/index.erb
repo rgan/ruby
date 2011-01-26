@@ -11,6 +11,7 @@
         <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
             <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Teams</a></li>
             <li class="ui-state-default ui-corner-top"><a href="#tabs-2">Facebook</a></li>
+            <li class="ui-state-default ui-corner-top"><a href="#tabs-3">Google</a></li>
         </ul>
         <div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
           <div><a href="/team/new">Create new team</a></div>
@@ -30,6 +31,18 @@
                 <% end %>
             <% else %>
                 <a href="/facebook_login">Click here to allow access to facebook</a>
+            <% end %>
+           </div>
+        </div>
+        <div id="tabs-3" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+          <div >
+            <% if @google_contacts %>
+                <p>Contacts from your Google Account:</p>
+                <% @google_contacts.each do |member| %>
+                    <%=member.name%>
+                <% end %>
+            <% else %>
+                <a href="/google_login">Click here to allow access to Google</a>
             <% end %>
            </div>
         </div>
