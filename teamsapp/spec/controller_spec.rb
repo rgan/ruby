@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper.rb'
-require File.dirname(__FILE__) + '/../teamsapp.rb'
+require File.dirname(__FILE__) + '/../teamscontroller.rb'
 require 'rack/test'
 
 ENV['RACK_ENV'] = 'test'

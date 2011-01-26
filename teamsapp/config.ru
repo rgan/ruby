@@ -1,2 +1,2 @@
-require 'teamsapp'
+require 'teamscontroller'
 run Sinatra::Application
