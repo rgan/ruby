@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/../services/google.rb'
 describe "google" do
 
   it "should create request token" do
-    Google.new().request_token("https://teamsappdev.appspot.com").should_not be_nil
+    Google.new().request_token("https://foo.com").should_not be_nil
   end
 
   it "should parse contacts from valid json" do

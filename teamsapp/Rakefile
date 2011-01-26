@@ -1,11 +1,18 @@
+gempath= ENV["GEM_PATH"].split(":")[0] #/Users/Admin/.rvm/gems/ruby-1.8.7-p302/gems"
+APPENGINE_SDK_LIB_DIR= File.join(gempath, "gems", "appengine-sdk-1.4.0", "appengine-java-sdk-1.4.0", "lib")
 
 task :default => [:test]
 
 task :test do
+  exec java_cmd + Dir.glob(File.join("**", "spec", "*_spec.rb")).join(" ")
+end
+
+task :cucumber do
+  exec java_cmd + " bin/cucumber"
+end
+
+def java_cmd
   appdir = File.dirname(__FILE__)
   libdir = File.join(appdir, 'WEB-INF', 'lib')
-  gempath= ENV["GEM_PATH"].split(":")[0] #/Users/Admin/.rvm/gems/ruby-1.8.7-p302/gems"
-  sdklibdir= File.join(gempath, "gems", "appengine-sdk-1.4.0", "appengine-java-sdk-1.4.0", "lib")
-  cmd = "java -Dfile.encoding=UTF-8 -cp #{libdir}/appengine-api-1.0-sdk-1.4.0.jar:#{libdir}/appengine-api-labs-1.4.0.jar:#{libdir}/appengine-rack.jar:#{libdir}/gems.jar:#{libdir}/generator.jar:#{libdir}/jruby-core-1.5.6.jar:#{libdir}/jruby-rack-1.0.5.jar:#{libdir}/jruby-stdlib-1.5.6.jar:#{libdir}/parser.jar:#{sdklibdir}/shared/appengine-local-runtime-shared.jar:#{sdklibdir}/impl/appengine-api-stubs.jar:#{sdklibdir}/impl/appengine-local-runtime.jar:#{sdklibdir}/testing/appengine-testing.jar org.jruby.Main"
-  exec cmd + " -r#{appdir}/test_environment.rb spec/services_spec.rb spec/models_spec.rb spec/controller_spec.rb"
+  "java -Dfile.encoding=UTF-8 -cp #{libdir}/appengine-api-1.0-sdk-1.4.0.jar:#{libdir}/appengine-api-labs-1.4.0.jar:#{libdir}/appengine-rack.jar:#{libdir}/gems.jar:#{libdir}/generator.jar:#{libdir}/jruby-core-1.5.6.jar:#{libdir}/jruby-rack-1.0.5.jar:#{libdir}/jruby-stdlib-1.5.6.jar:#{libdir}/parser.jar:#{APPENGINE_SDK_LIB_DIR}/shared/appengine-local-runtime-shared.jar:#{APPENGINE_SDK_LIB_DIR}/impl/appengine-api-stubs.jar:#{APPENGINE_SDK_LIB_DIR}/impl/appengine-local-runtime.jar:#{APPENGINE_SDK_LIB_DIR}/testing/appengine-testing.jar org.jruby.Main "
 end

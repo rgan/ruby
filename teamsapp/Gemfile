@@ -11,4 +11,7 @@ gem "mogli"
 gem "json-jruby"
 gem "oauth"
 gem "jruby-openssl"
+# testing only - appengine bundler version does not support groups yet
 gem "rspec"
+gem "rack-test"
+gem "cucumber"
