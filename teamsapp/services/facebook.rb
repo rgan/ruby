@@ -73,7 +73,7 @@ class Facebook
   end
 
   def authenticator(env_info_hash)
-    Mogli::Authenticator.new(env_info_hash[:app_id], env_info_hash[:secret], "#{env_info_hash[:url]}/oauth/create")
+    Mogli::Authenticator.new(env_info_hash[:fb_app_id], env_info_hash[:fb_secret], "#{env_info_hash[:url]}/oauth/create")
   end
 
   def default_params()

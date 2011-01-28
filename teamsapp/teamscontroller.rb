@@ -7,6 +7,7 @@ require 'models/team'
 require 'models/team_member'
 require 'services/facebook'
 require 'services/google'
+require 'services/windows_live'
 require 'oauth'
 
 require 'env.rb'
@@ -31,6 +32,11 @@ get '/' do
   if session[:google_request_token] && params[:oauth_verifier]
     @google_contacts = Google.new().contacts(session[:google_request_token], params[:oauth_verifier])
   end
+  if params[:wrap_verification_code]
+    windows_live = WindowsLive.new()
+    session[:windows_acess_token] = windows_live.access_token(APP_INFO[APP_ENV], params[:wrap_verification_code])
+    @win_live_contacts = windows_live.contacts(APP_INFO[APP_ENV][:windows_live_client_id], session[:windows_acess_token])
+  end
   erb :index
 end
 
@@ -49,6 +55,10 @@ get '/google_login' do
   if session[:google_request_token]
     redirect session[:google_request_token].authorize_url()
   end
+end
+
+get '/windows_login' do
+  redirect WindowsLive.new().authorize_url(APP_INFO[APP_ENV][:windows_live_client_id], APP_INFO[APP_ENV][:url])
 end
 
 get '/team/new' do

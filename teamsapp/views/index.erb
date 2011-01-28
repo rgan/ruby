@@ -12,6 +12,7 @@
             <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Teams</a></li>
             <li class="ui-state-default ui-corner-top"><a href="#tabs-2">Facebook</a></li>
             <li class="ui-state-default ui-corner-top"><a href="#tabs-3">Google</a></li>
+            <li class="ui-state-default ui-corner-top"><a href="#tabs-4">Windows Live</a></li>
         </ul>
         <div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
           <div><a href="/team/new">Create new team</a></div>
@@ -39,13 +40,22 @@
             <% if @google_contacts %>
                 <p>Contacts from your Google Account:</p>
                 <% @google_contacts.each do |member| %>
-                    <%=member.name%>
+                    <p><%=member.name%></p>
                 <% end %>
             <% else %>
                 <a href="/google_login">Click here to allow access to Google</a>
             <% end %>
            </div>
         </div>
+        <div id="tabs-4" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+            <% if @win_live_contacts %>
+                <% @win_live_contacts.each do |member| %>
+                    <p><%=member.name%></p>
+                <% end %>
+            <% end %>
+            <a href="/windows_login">Click here to allow access to Windows Live</a>
+        </div>
+    </div>
     </div>
     </div>
 

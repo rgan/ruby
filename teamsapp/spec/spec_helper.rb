@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), "../.gems/bundler_gems/jruby/1.8/environment"))
+require File.expand_path(File.join(File.dirname(__FILE__), "../test_environment"))
 require 'rspec'
 require 'dm-core'
 require 'dm-validations'
