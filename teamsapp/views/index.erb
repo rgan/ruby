@@ -52,8 +52,9 @@
                 <% @win_live_contacts.each do |member| %>
                     <p><%=member.name%></p>
                 <% end %>
+            <% else %>
+                <a href="/windows_login">Click here to allow access to Windows Live</a>
             <% end %>
-            <a href="/windows_login">Click here to allow access to Windows Live</a>
         </div>
     </div>
     </div>

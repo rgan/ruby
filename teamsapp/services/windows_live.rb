@@ -4,6 +4,7 @@ require 'json'
 
 class WindowsLive
   include HTTParty
+  include ServiceUtils
 
   def initialize()
     @logger = AppEngine::Logger.new(nil)
@@ -14,41 +15,42 @@ class WindowsLive
   end
 
   def access_token(env_info, verification_code)
-    response = self.class.post("https://consent.live.com/AccessToken.aspx",
-                    :body => { "wrap_client_id" => env_info[:windows_live_client_id],
-                               "wrap_client_secret" => env_info[:windows_live_client_secret],
-                               "wrap_callback" => env_info[:url],
-                               "wrap_verification_code" => verification_code,
-                               "idtype" => "CID"})
-    token = token_from_response(response)
+    begin
+      response = self.class.post("https://consent.live.com/AccessToken.aspx",
+                      :body => { "wrap_client_id" => env_info[:windows_live_client_id],
+                                 "wrap_client_secret" => env_info[:windows_live_client_secret],
+                                 "wrap_callback" => env_info[:url],
+                                 "wrap_verification_code" => verification_code,
+                                 "idtype" => "CID"})
+      token_from_response(response)
+    rescue Exception => e
+      @logger.info(e.message)
+    end
   end
 
   def contacts(client_id, access_token)
-    response = self.class.get("https://apis.live.net/V4.1/cid-#{client_id}/Contacts/AllContacts",
-                              { :headers => {"Accept" => "application/json", "Authorization" => "#{access_token.access_token}"}})
-    @logger.info(response.body)
-    to_contacts(response.body)
+    begin
+      response = self.class.get("https://bay.apis.live.net/V4.1/cid-#{client_id}/Contacts/AllContacts",
+                                { :headers => {"Accept" => "application/json", "Authorization" => "#{access_token.access_token}"}})
+      @logger.info(response.body)
+      to_contacts(response.body)
+    rescue Exception => e
+      @logger.info(e.message)
+      []
+    end
+
   end
 
   def token_from_response(response)
-    parts = response.split("&")
-    hash = {}
-    parts.each do |p| (k,v) = p.split("=")
-        hash[k]=CGI.unescape(v)
-    end
-    WindowsToken.new(hash)
+    WindowsToken.new(response_to_hash(response))
   end
 
   def to_contacts(contacts_json)
     members = []
-    begin
-      contacts = JSON(contacts_json)
-      contacts["Entries"].each do |entry|
-        members << TeamMember.new(:name => entry["FormattedName"], :windows_id => entry["Id"])
-      end
-    rescue
+    contacts = JSON(contacts_json)
+    contacts["Entries"].each do |entry|
+      members << TeamMember.new(:name => entry["FormattedName"], :windows_id => entry["Id"])
     end
-
     members
   end
 end

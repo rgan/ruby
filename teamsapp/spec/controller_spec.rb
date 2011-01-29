@@ -22,23 +22,6 @@ describe "teamsapp controller" do
       @browser.get '/'
       @browser.last_response.body.should include("team9")
     end
-
-    it "should get facebook user when auth token is present" do
-      facebook_service = mock()
-      Facebook.stub(:new) { facebook_service }
-
-      facebook_service.stub(:create_access_token_from_code) { "foo" }
-
-      user_mock = mock()
-      facebook_service.stub(:me) { user_mock }
-      facebook_service.should_receive(:posts)
-
-      user_mock.should_receive(:first_name)
-      user_mock.should_receive(:last_name)
-
-      @browser.get '/oauth/create', { :code => "foo"}
-      @browser.get '/'
-    end
   end
 
   describe "create team" do

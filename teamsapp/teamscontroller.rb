@@ -27,7 +27,8 @@ get '/' do
   if session[:fb_access_token]
     facebook = Facebook.new(session[:fb_access_token])
     @user = facebook.me()
-    @posts = facebook.posts(@user) unless @user.nil?
+    session[:fb_access_token] = nil if @user.nil?
+    @posts = facebook.posts() unless @user.nil?
   end
   if session[:google_request_token] && params[:oauth_verifier]
     @google_contacts = Google.new().contacts(session[:google_request_token], params[:oauth_verifier])
