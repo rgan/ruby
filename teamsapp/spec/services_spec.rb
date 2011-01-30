@@ -70,7 +70,7 @@ end
 
   def facebook_user_data()
 <<EOF
-{"id":"2000","name":"Marajar Nag","first_name":"foo","last_name":"bar"}
+{"id":"2000","name":"Foo bar","first_name":"foo","last_name":"bar"}
 EOF
   end
 

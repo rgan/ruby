@@ -46,7 +46,7 @@ class WindowsLive
     begin
       log("Windows Live: post_update...")
       response = self.class.post("#{path(@env_info[:windows_live_client_id])}/MyActivities",
-                                 { :body => post_message(message),
+                                 { :body => post_message(message, @env_info[:url]),
                                    :headers => default_headers(access_token).merge({"Content-Type" =>  "application/json"})})
       log(response.body)
     rescue Exception => e
@@ -73,10 +73,10 @@ class WindowsLive
     @logger.info("windows_live update:" + msg)
   end
   
-  def post_message(message)
+  def post_message(message, url)
     '{"__type" : "CustomActivity:http://schemas.microsoft.com/ado/2007/08/dataservices",
-      "CustomActivityVerb" : "Added a team",
-      "ApplicationLink" : "https://foobar",
+      "CustomActivityVerb" : ' + '"' + message +
+      '","ApplicationLink" : "' + url + '",
       "ActivityObjects" : [
         {
           "ActivityObjectType" : "http://activitystrea.ms/schema/1.0/custom",

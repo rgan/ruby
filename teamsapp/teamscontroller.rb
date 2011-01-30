@@ -127,7 +127,7 @@ end
 
 def queue_social_updates(msg)
   windows_token = session[:windows_access_token].nil? ? "" : session[:windows_access_token].access_token
-  fb_token = session[:fb_access_token].nil? ? "" : session[:fb_access_token].access_token
+  fb_token = session[:fb_access_token].nil? ? "" : session[:fb_access_token]
   AppEngine::Labs::TaskQueue::Task.new(nil, {:url => "/worker/post_updates", :method => :POST, :params => {"msg" => msg,
                                                "windows_access_token" => windows_token,
                                                "fb_access_token" => fb_token}}).add
