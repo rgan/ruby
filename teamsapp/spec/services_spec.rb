@@ -5,8 +5,8 @@ require File.dirname(__FILE__) + '/../services/windows_live.rb'
 describe "windows live" do
 
   it "should return authorize url" do
-    WindowsLive.new().authorize_url(APP_INFO[APP_ENV][:windows_live_client_id], APP_INFO[APP_ENV][:url]).should ==
-        "https://consent.live.com/Connect.aspx?wrap_client_id=0000000048046F22&wrap_callback=https://teamsappdemo.appspot.com/&wrap_scope=WL_Contacts.View"
+    WindowsLive.new(APP_INFO[APP_ENV]).authorize_url().should ==
+        "https://consent.live.com/Connect.aspx?wrap_client_id=0000000048046F22&wrap_callback=https://teamsappdemo.appspot.com/&wrap_scope=WL_Contacts.View,WL_Profiles.View,WL_Activities.Update"
   end
 
   it "should parse token from response" do

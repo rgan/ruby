@@ -21,9 +21,9 @@ class Facebook
     begin
       response = self.class.get(authenticator(env_info_hash).access_token_url(code))
       @logger.info(response)
-      @access_token = FacebookAccessToken.new(response_to_hash(response))
+      @access_token = response_to_hash(response)["access_token"]
     rescue Exception => e
-      log(e)
+      log(e.message)
       @access_token = nil
     end
   end
@@ -35,7 +35,7 @@ class Facebook
         #@logger.info(response.body)
         to_user(response.body)
       rescue Exception => e
-        log(e)
+        log(e.message)
         nil
       end  
     end
@@ -48,7 +48,7 @@ class Facebook
         #@logger.info(response.body)
         to_posts(response.body)
       rescue Exception => e
-        log(e)
+        log(e.message)
         []
       end
     end
@@ -61,18 +61,19 @@ class Facebook
         #@logger.info(response.body)
         to_friends(response.body)
       rescue Exception => e
-        log(e)
+        log(e.message)
         []
       end
     end
   end
 
-  def post_team_creation(team)
+  def post_update(msg)
     if @access_token
       begin
-        self.class.post(path("me/feed"),:body=>default_params().merge({:message => "Created team #{team.name}"}))
+        log("Facebook: posting update")
+        self.class.post(path("me/feed"),:body=>default_params().merge({:message => msg}))
       rescue Exception => e
-        log(e)
+        log(e.message)
       end
     end
   end
@@ -99,8 +100,8 @@ class Facebook
 
   private
 
-  def log(e)
-    @logger.info(e.message)
+  def log(msg)
+    @logger.info("Facebook:" + msg)
   end
 
   def authenticator(env_info_hash)
@@ -108,21 +109,11 @@ class Facebook
   end
 
   def default_params()
-    @access_token ? {:access_token=> @access_token.token} : {}
+    @access_token ? {:access_token=> @access_token} : {}
   end
 
   def path(path)
     "https://graph.facebook.com/#{path}"
-  end
-
-end
-
-class FacebookAccessToken
-  attr_reader :token
-
-  def initialize(token_expiration_hash)
-    @token = token_expiration_hash["access_token"]
-    #@expires_at = Time.at(token_expiration_hash["expires"].to_i)
   end
 
 end

@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'appengine-apis/urlfetch'
+require 'appengine-apis/labs/taskqueue'
 Net::HTTP = AppEngine::URLFetch::HTTP
 require 'dm-core'
 require 'dm-validations'
@@ -34,9 +35,10 @@ get '/' do
     @google_contacts = Google.new().contacts(session[:google_request_token], params[:oauth_verifier])
   end
   if params[:wrap_verification_code]
-    windows_live = WindowsLive.new()
-    session[:windows_acess_token] = windows_live.access_token(APP_INFO[APP_ENV], params[:wrap_verification_code])
-    @win_live_contacts = windows_live.contacts(APP_INFO[APP_ENV][:windows_live_client_id], session[:windows_acess_token])
+    session[:windows_access_token] = WindowsLive.new(APP_INFO[APP_ENV]).access_token(params[:wrap_verification_code])
+  end
+  if session[:windows_access_token]
+    @win_live_contacts = WindowsLive.new(APP_INFO[APP_ENV]).contacts(session[:windows_acess_token])
   end
   erb :index
 end
@@ -59,7 +61,7 @@ get '/google_login' do
 end
 
 get '/windows_login' do
-  redirect WindowsLive.new().authorize_url(APP_INFO[APP_ENV][:windows_live_client_id], APP_INFO[APP_ENV][:url])
+  redirect WindowsLive.new(APP_INFO[APP_ENV]).authorize_url()
 end
 
 get '/team/new' do
@@ -80,12 +82,17 @@ end
 post '/team/create' do
   team = Team.new(:name => params[:name], :about => params[:about])
   if team.save
-    Facebook.new(session[:fb_access_token]).post_team_creation(team)
+    queue_social_updates("Created team #{team.name}")
     redirect '/'
   else
     @errors = team.errors.full_messages
     erb :"team/new"
   end
+end
+
+post '/worker/post_updates' do
+  Facebook.new(params[:fb_access_token]).post_update(params[:msg])
+  WindowsLive.new(APP_INFO[APP_ENV]).post_update(params[:windows_acess_token], params[:msg])
 end
 
 post '/team/:id/member/create' do
@@ -116,4 +123,12 @@ def member_name_from_params(params)
   else
     params[:name]
   end
+end
+
+def queue_social_updates(msg)
+  windows_token = session[:windows_access_token].nil? ? "" : session[:windows_access_token].access_token
+  fb_token = session[:fb_access_token].nil? ? "" : session[:fb_access_token].access_token
+  AppEngine::Labs::TaskQueue::Task.new(nil, {:url => "/worker/post_updates", :method => :POST, :params => {"msg" => msg,
+                                               "windows_access_token" => windows_token,
+                                               "fb_access_token" => fb_token}}).add
 end

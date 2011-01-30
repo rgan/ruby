@@ -26,11 +26,13 @@ describe "teamsapp controller" do
 
   describe "create team" do
 
-    it "should post to facebook when a team is created" do
-      facebook_service = mock()
-      Facebook.stub(:new) { facebook_service }
-
-      facebook_service.should_receive(:post_team_creation)
+    it "should queue updates to activity feeds when a team is created" do
+      task_mock = mock()
+      AppEngine::Labs::TaskQueue::Task.should_receive(:new).with(nil, {:url => "/worker/post_updates",
+                                                                       :method => :POST, :params => {"msg" => "Created team team10",
+                                               "windows_access_token" => "",
+                                               "fb_access_token" => ""}}).and_return(task_mock)
+      task_mock.should_receive(:add)
       @browser.post '/team/create', {:name => "team10", :about => "about"}
 
     end

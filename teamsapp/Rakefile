@@ -1,14 +1,18 @@
-gempath= ENV["GEM_PATH"].split(":")[0] #/Users/Admin/.rvm/gems/ruby-1.8.7-p302/gems"
+gempath= ENV["GEM_PATH"].split(":")[0] # path to where appengine sdk gem is installed
 APPENGINE_SDK_LIB_DIR= File.join(gempath, "gems", "appengine-sdk-1.4.0", "appengine-java-sdk-1.4.0", "lib")
 
 task :default => [:test]
 
 task :test do
-  exec java_cmd + Dir.glob(File.join("**", "spec", "*_spec.rb")).join(" ")
+  exec java_cmd + init_env + Dir.glob(File.join("**", "spec", "*_spec.rb")).join(" ")
 end
 
 task :cucumber do
-  exec java_cmd + " bin/cucumber"
+  exec java_cmd + init_env + File.join(gempath, "gems", "cucumber-0.10.0", "bin", "cucumber")
+end
+
+def init_env
+  "-r" + File.join(File.dirname(__FILE__), "test_environment.rb") + " "
 end
 
 def java_cmd

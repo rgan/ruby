@@ -6,39 +6,52 @@ class WindowsLive
   include HTTParty
   include ServiceUtils
 
-  def initialize()
+  def initialize(env_info=nil)
+    @env_info = env_info
     @logger = AppEngine::Logger.new(nil)
   end
 
-  def authorize_url(client_id, app_url)
-      "https://consent.live.com/Connect.aspx?wrap_client_id=#{client_id}&wrap_callback=#{app_url}&wrap_scope=WL_Contacts.View"
+  def authorize_url()
+      "https://consent.live.com/Connect.aspx?wrap_client_id=#{@env_info[:windows_live_client_id]}&wrap_callback=#{@env_info[:url]}&wrap_scope=WL_Contacts.View,WL_Profiles.View,WL_Activities.Update"
   end
 
-  def access_token(env_info, verification_code)
+  def access_token(verification_code)
     begin
       response = self.class.post("https://consent.live.com/AccessToken.aspx",
-                      :body => { "wrap_client_id" => env_info[:windows_live_client_id],
-                                 "wrap_client_secret" => env_info[:windows_live_client_secret],
-                                 "wrap_callback" => env_info[:url],
+                      :body => { "wrap_client_id" => @env_info[:windows_live_client_id],
+                                 "wrap_client_secret" => @env_info[:windows_live_client_secret],
+                                 "wrap_callback" => @env_info[:url],
                                  "wrap_verification_code" => verification_code,
                                  "idtype" => "CID"})
       token_from_response(response)
     rescue Exception => e
-      @logger.info(e.message)
+      log(e.message)
     end
   end
 
-  def contacts(client_id, access_token)
+  def contacts(access_token)
     begin
-      response = self.class.get("https://bay.apis.live.net/V4.1/cid-#{client_id}/Contacts/AllContacts",
-                                { :headers => {"Accept" => "application/json", "Authorization" => "#{access_token.access_token}"}})
-      @logger.info(response.body)
+      response = self.class.get("#{path(@env_info[:windows_live_client_id])}/Contacts/AllContacts",
+                                { :headers => default_headers(access_token.access_token)})
+      log(response.body)
       to_contacts(response.body)
     rescue Exception => e
-      @logger.info(e.message)
-      []
+      log(e.message)
+      nil
     end
+  end
 
+  def post_update(access_token, message)
+    return if access_token.nil?
+    begin
+      log("Windows Live: post_update...")
+      response = self.class.post("#{path(@env_info[:windows_live_client_id])}/MyActivities",
+                                 { :body => post_message(message),
+                                   :headers => default_headers(access_token).merge({"Content-Type" =>  "application/json"})})
+      log(response.body)
+    rescue Exception => e
+      log(e.message)
+    end
   end
 
   def token_from_response(response)
@@ -52,6 +65,36 @@ class WindowsLive
       members << TeamMember.new(:name => entry["FormattedName"], :windows_id => entry["Id"])
     end
     members
+  end
+
+  private
+
+  def log(msg)
+    @logger.info("windows_live update:" + msg)
+  end
+  
+  def post_message(message)
+    '{"__type" : "CustomActivity:http://schemas.microsoft.com/ado/2007/08/dataservices",
+      "CustomActivityVerb" : "Added a team",
+      "ApplicationLink" : "https://foobar",
+      "ActivityObjects" : [
+        {
+          "ActivityObjectType" : "http://activitystrea.ms/schema/1.0/custom",
+          "Title" : "Test",
+          "Summary" : "Team description",
+          "AlternateLink" : "https://foobar",
+          "PreviewLink" : "https://foobar"
+        }
+      ]
+    }'
+  end
+
+  def path(client_id)
+    "https://apis.live.net/V4.1/cid-#{client_id}"
+  end
+
+  def default_headers(access_token)
+    {"Accept" => "application/json", "Authorization" => "WRAP access_token=#{access_token}"}
   end
 end
 
