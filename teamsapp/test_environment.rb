@@ -1,6 +1,6 @@
 def load_gems(gems, path)
   gems.each { |gem| Dir.glob(File.join(path, gem + "*")).each {
-    |item| puts item; $LOAD_PATH.unshift File.expand_path(File.join(item, "lib")) }
+    |item| $LOAD_PATH.unshift File.expand_path(File.join(item, "lib")) }
 }
 end
 

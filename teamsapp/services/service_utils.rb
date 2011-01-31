@@ -7,4 +7,12 @@ module ServiceUtils
     end
     hash
   end
+
+  def get_from_cache(cache, cache_key)
+    begin
+      cache.get(cache_key)
+    rescue
+      nil
+    end
+  end
 end

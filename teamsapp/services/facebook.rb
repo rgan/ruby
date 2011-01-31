@@ -2,14 +2,19 @@ require 'httparty'
 require 'mogli'
 require 'services/service_utils'
 require 'appengine-apis/logger'
+require 'appengine-apis/memcache'
 
 class Facebook
 
   include HTTParty
   include ServiceUtils
 
-  def initialize(access_token=nil)
+  CACHE_EXPIRATION = 60
+  
+  def initialize(access_token=nil, cache=nil)
     @access_token = access_token
+    @cache = cache
+    @cache = AppEngine::Memcache.new() if cache.nil?
     @logger = AppEngine::Logger.new(nil)
   end
 
@@ -31,11 +36,11 @@ class Facebook
   def me()
     if @access_token
       begin
-        response = self.class.get(path("me"), :query=>default_params())
-        #@logger.info(response.body)
-        to_user(response.body)
+        response = get_response(path("me"), :query=>default_params())
+        to_user(response)
       rescue Exception => e
         log(e.message)
+        @logger.info(e.backtrace)
         nil
       end  
     end
@@ -78,6 +83,17 @@ class Facebook
     end
   end
 
+  def get_response(url, options)
+    cache_key = memcache_key("me")
+    response = get_from_cache(@cache, cache_key)
+    return response unless response.nil?
+    response = self.class.get(url, options)
+    @logger.info(response.body)
+    raise "Error response" unless response.code == 200
+    @cache.set(cache_key, response.body, CACHE_EXPIRATION)
+    response.body
+  end
+
   def to_user(json_string)
     FacebookUser.new(JSON(json_string))
   end
@@ -96,6 +112,10 @@ class Facebook
       friends << TeamMember.new(:name => friend["name"], :facebook_id => friend["id"])
     end
     friends
+  end
+
+  def memcache_key(key)
+    "Facebook:" + @access_token + key
   end
 
   private
