@@ -7,8 +7,22 @@ task :test do
   exec java_cmd + init_env + Dir.glob(File.join("**", "spec", "*_spec.rb")).join(" ")
 end
 
-task :cucumber do
+task :cucumber => [:"stop-app", :"start-app"] do
+  sleep 10
   exec java_cmd + init_env + File.join(gempath, "gems", "cucumber-0.10.0", "bin", "cucumber")
+end
+
+task :"start-selenium" do
+  fork do exec "java -jar " + File.join(File.dirname(__FILE__), "vendor", "selenium-rc","selenium-server.jar") end
+end
+
+task :"start-app" do
+  fork do exec "dev_appserver.rb ." end
+end
+
+task :"stop-app" do
+  `lsof -Pni :8080 | grep LISTEN | awk '{print $2}' | xargs kill`
+  sleep 5
 end
 
 def init_env

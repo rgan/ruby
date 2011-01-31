@@ -1,4 +1,3 @@
-require 'rspec'
 require 'services/google'
 
 Before do
